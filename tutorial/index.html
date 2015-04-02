@@ -9,83 +9,108 @@
     <h2>Application overview</h2>
 
     <p>
-        The main functionality of the application is to greet the user using a random greeting from an in-memory database.
-        New greetings can be added by the user using a simple web form.
+        The functionality of this console application is to calculate a lucky number basing on the user's age and
+        favorite color.
     </p>
 
     <p>
-        The task is quite simple and the code is probably a bit too complicated for such a simple functionality, but it
+        The task is quite simple and the code is definitely too complicated for such a simple functionality, but it
         should serve demo purposes well.
     </p>
 
     <p>
-        There are three main parts: the <code>database</code> module, the <code>greetings</code> module and the
-        frontend part, consisting of <code>controllers</code> and the html pages. We'll explore each module in detail
-        in the following sections, focusing on <strong>Dependency Injection</strong>, using <code>trait</code>s as modules,
-        MacWire and integration with the Play Framework.
+        There are two main parts: the <code>calculator</code> module and the <code>actors</code> module. We'll explore 
+        each module in detail in the following sections, focusing on <strong>Dependency Injection</strong>, using 
+        <code>trait</code>s as modules, MacWire and integration with Akka.
     </p>
 
     <p>
-        To see how the application works, just visit <a href="http://localhost:9000" target="_blank">http://localhost:9000</a>
-        once the application has been compiled and the server started.
-        Check <a href="#run" class="shortcut">Run</a> to see the server status.
+        To see how the application works, just <a href="#run" class="shortcut">Run</a> it! There's no fancy UI, unless
+        you consider the console to be fancy :).
     </p>
 </div>
 <div>
-    <h2>The database package</h2>
+    <h2>The calculator package</h2>
 
     <p>
-        The main trait in the <a href="#code/app/services/database" class="shortcut">database</a> package is
-        <a href="#code/app/services/database/Database.scala" class="shortcut">Database</a>. It defines a
-        very simple interface for storing <code>String</code> key-pair values. It has a single implementation,
-        <a href="#code/app/services/database/InMemoryDatabase.scala" class="shortcut">InMemoryDatabase</a>,
-        which uses a <code>ConcurrentHashMap</code> for the actual storage.
+        The main class in the <a href="#src/main/scala/activator/calculator" class="shortcut">calculator</a> package is the
+        <a href="#src/main/scala/activator/calculator/CalculateLuckyNumber.scala" class="shortcut">CalculateLuckyNumber</a>
+        class. It implements the main logic of actually computing the lucky number.
     </p>
 
     <p>
-        Note that the <code>InMemoryDatabase</code> has a dependency: an
-        <a href="#code/app/services/database/AuditLogger.scala" class="shortcut">AuditLogger</a>. This implementation
-        of the audit simply prints out information about each operation. A real-world implementation could,
-        for example, use a RDBMS to implement the database, and write the audit to a file, including the current
-        user's username with each entry.
+        Note that the <code>CalculateLuckyNumber</code> has two dependencies:
+        <a href="#src/main/scala/activator/calculator/InterpretFavoriteColor.scala" class="shortcut">InterpretFavoriteColor</a>
+        and <a href="#src/main/scala/activator/calculator/RandomModifier.scala" class="shortcut">RandomModifier</a>
+        (as we all know, all lucky number computations are to some degree random). All of the classes are quite simple,
+        and in the end we simply add up all the numbers we get.
     </p>
 
     <h3>Dependency Injection</h3>
 
     <p>
-        The fact that <code>InMemoryDatabase</code> is dependent on <code>AuditLogger</code> is expressed using a
-        constructor parameter. And this is the main idea behind <strong>Dependency Injection</strong>: instead of creating a
-        specific implementation of an <code>AuditLogger</code> inside the <code>InMemoryDatabase</code> class using
+        The fact that <code>CalculateLuckyNumber</code> is dependent on <code>InterpretFavoriteColor</code> and
+        <code>RandomModifier</code> is expressed using a constructor parameter. And this is the main idea behind
+        <strong>Dependency Injection</strong>: instead of creating a specific implementation of e.g. an
+        <code>InterpretFavoriteColor</code> inside the <code>CalculateLuckyNumber</code> class using
         <code>new</code>, we only specify that we want "some" implementation. This decouples the two classes, as we
-        can now use <strong>any</strong> <code>AuditLogger</code> implementation, without the need to change the
-        code of the <code>InMemoryDatabase</code> class.
+        can now use <strong>any</strong> <code>InterpretFavoriteColor</code> implementation, without the need to change
+        the code of the <code>CalculateLuckyNumber</code> class.
     </p>
 
     <p>
         The removal of creational concerns from the code leads to less code pollution and increased testability. Very
         often usage of Dependency Injection is accompanied by a framework, such as
-        <a href="https://code.google.com/p/google-guice/">Guice</a>, <a href="http://spring.io/">Spring</a> or
-        <a href="https://github.com/dickwall/subcut">Subcut</a>. However, a framework is not required, and as this
-        tutorial demonstrates, Scala language features can be used instead. Also, the mentioned frameworks most often
-        rely on run-time reflection and hence provide less type safety. That said, they offer some advanced features
-        which are not possible to achieve only with Scala/MacWire. For a more detailed comparison, please refer to the
-        blogs mentioned at the end of the tutorial.
+        <a href="https://code.google.com/p/google-guice/">Guice</a> or <a href="http://spring.io/">Spring</a>.
+        However, a framework is not required, and as this tutorial demonstrates, Scala language features can be used
+        instead. Also, the mentioned frameworks most often rely on run-time reflection and hence provide less type
+        safety. That said, they offer some advanced features which are not possible to achieve only with Scala/MacWire.
+        For a more detailed comparison, please refer to the materials mentioned at the end of the tutorial.
     </p>
 </div>
 <div>
-    <h2>The database module</h2>
+    <h2>The calculator module</h2>
 
     <p>
-        The <a href="#code/app/services/database" class="shortcut">database</a> package also contains a
-        <a href="#code/app/services/database/DatabaseModule.scala" class="shortcut">DatabaseModule</a> trait.
+        The <a href="#src/main/scala/activator/calculator" class="shortcut">calculator</a> package also contains a
+        <a href="#src/main/scala/activator/calculator/CalculatorModule.scala" class="shortcut">CalculatorModule</a> trait.
         In the trait we define how to create instances of the objects from this package.
     </p>
 
     <p>
-        In our case, and as is most common, creating the object graph is just calling <code>new</code> with
-        the right parameters. Here we additionally constrain the type of the <code>database</code> value to be
-        <code>Database</code>, so that clients do not see the underlying more specific implementation type.
+        In many cases we can just call <code>new</code> with the right instances to create the object graph. Note that
+        even when calling <code>new</code> directly, we are doing Dependency Injection! The main point is that creating
+        the objects (object graph) is done separately from defining the classes. Here however, we are using MacWire
+        to remove a bit of the boilerplate that is associated with creating the instances.
     </p>
+
+    <h3>MacWire</h3>
+
+    <p>
+        The instances are defined using the <code>wire</code> macro. A macro is a piece of Scala code which is
+        executed at <strong>compile time</strong>, generating Scala code. The code is then type-checked and further
+        compiled using standard rules. The <code>wire</code> macro is part of the MacWire library.
+    </p>
+
+    <p>
+        The <code>wire</code> macro will try to generate code to create a new instance of the given class, using as
+        parameters values found in the current scope. For example,
+        <pre><code>wire[CalculateLuckyNumber]</code></pre>
+        will expand to
+        <pre><code>new CalculateLuckyNumber(randomModifier, interpretFavoriteColor)</code></pre>
+        Note that this is all done at compile-time - there's no run-time component here! At run-time, all the JVM
+        will see is <code>new</code> invocation. And we get compile-time checking that all dependencies of a class
+        are satisfied!
+    </p>
+
+    <p>
+        Wiring using the macro can be useful when classes have several dependencies and enumerating all construction
+        parameters would be tedious. Moreover the macro can be used only for some objects, others may be created by
+        hand or using more complex custom code.
+    </p>
+</div>
+<div>
+    <h2>The calculator module #2</h2>
 
     <h3>Why lazy?</h3>
 
@@ -111,110 +136,118 @@
     </p>
 </div>
 <div>
-    <h2>The greetings package</h2>
+    <h2>The actors package</h2>
 
     <p>
-        The classes in the greetings package are constructed in a similar way. They form a graph of dependencies (e.g.
-        <a href="#code/app/services/greetings/RandomGreetingsService.scala" class="shortcut">RandomGreetingsService</a> depends on
-        <a href="#code/app/services/greetings/RandomItemChooser.scala" class="shortcut">RandomItemChooser</a>, and the
-        <a href="#code/app/services/greetings/GreetingsSaver.scala" class="shortcut">GreetingsSaver</a> depends on an
-        instance of a <a href="#code/app/services/database/Database.scala" class="shortcut">Database</a>.
+        The <a href="#src/main/scala/activator/actors" class="shortcut">actors</a> package contains three actors
+        which are responsible for accepting user requests, calculating the lucky number and emailing it back to the
+        user (well, email support will be available in 2.0, here we are just printing to the console).
     </p>
 
     <p>
-        The code is fairly simple so hopefully it is easy to understand what it does.
-    </p>
-</div>
-<div>
-    <h2>The greetings module</h2>
-
-    <p>
-        The <a href="#code/app/services/greetings/GreetingsModule.scala" class="shortcut">GreetingsModule</a> differs in two
-        important ways from the <code>DatabaseModule</code>. Firstly, this module itself depends on the <code>DatabaseModule</code>,
-        as we will need to access the <code>database</code> instance. Thanks to the way Scala traits work we can express
-        module-level dependencies and combine several modules using trait composition.
-    </p>
-
-    <h3>MacWire</h3>
-
-    <p>
-        The second difference is in the way the object instances are defined: using the <code>wire</code> macro. A macro is
-        a piece of Scala code which is executed at <strong>compile time</strong>, generating Scala code. The code is then type-checked
-        and further compiled using standard rules. The <code>wire</code> macro is part of the MacWire library.
+        <a href="#src/main/scala/activator/actors/CalculateRequest.scala" class="shortcut">CalculateRequest</a> is
+        a simple data container which represents a user request. It is used by the
+        <a href="#src/main/scala/activator/actors/CalculateActor.scala" class="shortcut">CalculateActor</a> to
+        compute the lucky number and send it back to the sender. Note that the actor has a dependency - the service
+        we defined earlier in the <code>calculator</code> package.
     </p>
 
     <p>
-        The <code>wire</code> macro will try to generate code to create a new instance of the given class, using as parameters
-        values found in the current scope. For example,
-        <pre><code>wire[RandomGreetingsService]</code></pre>
-        will expand to
-        <pre><code>new RandomGreetingsService(database, randomItemChooser)</code></pre>
-        Note that this is all done at compile-time - there's
-        no run-time component here! At run-time, all the JVM will see is <code>new</code> invocation. And we get
-        compile-time checking that all dependencies of a class are satisfied!
+        The <a href="#src/main/scala/activator/actors/EmailActor.scala" class="shortcut">EmailActor</a> just prints
+        outs any strings it get to the console. A much more interesting actor is the main one,
+        <a href="#src/main/scala/activator/actors/EmailLuckyNumbersActor.scala" class="shortcut">EmailLuckyNumbersActor</a>.
+        That actor accepts requests, sends them to be calculated, and upon receiving a reply, emails the result.
     </p>
 
     <p>
-        Wiring using the macro can be useful when classes have several dependencies and enumerating all construction parameters
-        would be tedious. Moreover the macro can be used only for some objects, others may be created by hand or using
-        more complex custom code.
+        There's a number of good ways to compose actors and pass around actor references; one quite widely used is
+        sending the <code>ActorRef</code>s of collaborating actors in messages. Here, we are using another approach:
+        passing the <code>ActorRef</code> as constructor parameters (dependencies). Both styles can be mixed of course,
+        depending on the specific use-case.
     </p>
 </div>
 <div>
-    <h2>The controllers</h2>
+    <h2>Tagging</h2>
 
     <p>
-        There are two <a href="#code/app/controllers" class="shortcut">controllers</a>. Unlike normal Play controllers,
-        these are not <code>object</code>s, but <code>class</code>es, with some dependencies declared in constructors. Apart
-        from that, the controllers are quite regular.
+        If you take a closer look at
+        <a href="#src/main/scala/activator/actors/EmailLuckyNumbersActor.scala" class="shortcut">EmailLuckyNumbersActor</a>,
+        you'll notice that the dependencies have "tags", <code>ActorRef @@ Calculate</code> and
+        <code>ActorRef @@ Email</code>. The <code>@@ T</code> part comes from MacWire, and is entirerly optional, but it
+        helps to differentiate which actor reference is which and gives some additional compile-time type checks; we
+        can only use properly tagged instances when passing parameters around.
     </p>
 
     <p>
-        The first controller, <a href="#code/app/controllers/MainController.scala" class="shortcut">MainController</a>,
-        is used to get a random greeting. The second controller,
-        <a href="#code/app/controllers/AddGreetingController.scala" class="shortcut">AddGreetingController</a>,
-        adds a new greeting to the database.
+        The tags have no runtime overhead and the original idea comes from
+        <a href="https://gist.github.com/milessabin/89c9b47a91017973a35f">Miles Sabin</a> and is also
+        used e.g. in <a href="https://github.com/scalaz/scalaz">Scalaz</a>.
     </p>
 
     <p>
-        The frontend for the application is also quite standard, take a look at
-        <a href="#code/app/views" class="shortcut">app/views</a> and
-        <a href="#code/app/assets/javascripts/index.js" class="shortcut">assets/javascripts/index.js</a> if you are curious, but
-        there's nothing Dependency Injection/MacWire-specific in these files.
+        Tags can be added to an instance using the <code>.taggedWith[T]</code> method, which is available after importing
+        <code>com.softwaremill.macwire._</code>. For example, we could tag an existing actor reference like this:
+        <pre><code>someActorRef.taggedWith[Email]</code></pre>
+        The tags are usually simple <code>trait</code>s.
     </p>
 </div>
 <div>
-    <h2>Integrating the controllers</h2>
+    <h2>The actors module</h2>
 
     <p>
-        The controllers are wired using the approach we've seen before: see the
-        <a href="#code/app/Application.scala" class="shortcut">Application</a> object. The object depends on (extends)
-        the two modules we defined earlier, hence when wiring the controllers, the necessary parameters are available.
+        Just as with the <code>calculator</code> module, there's also a trait-module for <acode>actors</acode>, the
+        <a href="#src/main/scala/activator/actors/ActorsModule.scala" class="shortcut">ActorsModule</a>.
     </p>
 
     <p>
-        The last missing piece in the puzzle is how to tell Play how to obtain instances of the controllers? Firstly, we
-        have to reference controllers in the  <a href="#code/conf/routes" class="shortcut">conf/routes</a> file with the
-        <code>@</code> prefix, e.g.:
-        <pre><code>@controllers.MainController.index()</code></pre>
-        This will cause Play to delegate looking up instances of controllers to a special class.
+        To create actors, first of all we need to have access to a <code>ActorSystem</code>. The module has an abstract
+        value of that type, which expresses a dependency of the module as a whole. It also has another dependency,
+        on a <code>CalculateLuckyNumber</code>. Any users of that module will have to provide an implementation of
+        these two values, and this will be enforced by the compiler.
     </p>
 
     <p>
-        That special class is <a href="#code/app/Global.scala" class="shortcut">Global</a>. The method that is called by
-        Play is <code>getControllerInstance</code>, passing a <code>Class</code> corresponding to the controller that
-        needs to be looked up. Hence we need a map translating classes to instances.
+        Secondly, creating actors is a bit different then creating normal objects, as we have to wrap the actor-instance
+        creation code with <code>actorSystem.actorOf(Props(...))</code>. As actors should be created with care, and we
+        probably only want them to be created explicitly, we are using <code>def create...()</code> methods, instead of
+        values.
     </p>
 
-    <h3>Instance map</h3>
+    <p>
+        Note that we are tagging the email/calculate actors appropriately, and that creating the <code>EmailLuckyNumbersActor</code>
+        requires references to other actors being passed in. These actor references from method paramters will be
+        used when creating a <code>EmailLuckyNumbersActor</code> instance.
+    </p>
+</div>
+<div>
+    <h2>Main class</h2>
 
     <p>
-        MacWire contains a utility macro to generate such a map: <code>valsByClass(someObject)</code>. The macro
-        will generate (again at compile-time) a map of all the <code>val</code>s in the given object, keyed by their
-        classes. Finally, we are using the <code>InstanceLookup</code> helper class from MacWire, to be able to lookup
-        instances taking into account super-classes and traits (e.g., our database instance will be keyed in the map generated
-        by the macro by the <code>InMemoryDatabase</code> class, but we could want to look it up using the trait it implements,
-        <code>Database</code>).
+        The <a href="#src/main/scala/activator/LuckyNumberDemo.scala" class="shortcut">LuckyNumberDemo</a> main class
+        wraps all that we have done so far together.
+    </p>
+
+    <p>
+        First of all, we extend both modules we have defined: <code>CalculatorModule</code> and
+        <code>ActorsModule</code>. This brings into scope all of the values defined. Note that also the <code>EmailLuckyNumbersActor</code>
+        dependency from <code>ActorsModule</code> is automatically satisfied by the definition in <code>CalculatorModule</code>!
+        (And of course, all of that is checked during compilation, using standard Scala mechanisms!)
+        The actor system dependency is not defined in any module hence we have to define it.
+    </p>
+
+    <p>
+        Secondly, we create the actors explicitly, passing around the right parameters. Thanks to tagging, we won't
+        be able to mix the email and calculator actor references when passing them to
+        <code>createEmailLuckyNumbersActor</code>.
+    </p>
+
+    <p>
+        Finally, we can ask the user for input and calculate the result using our actor infrastructure!
+    </p>
+
+    <p>
+        Try yourself - just <a href="#run" class="shortcut">Run</a> the code and enjoy dependency injection with plain
+        Scala, Akka and MacWire!
     </p>
 </div>
 <div>
@@ -228,25 +261,27 @@
 
     <p>
         As an example, take a look at
-        <a href="#code/test/services/greetings/GreetingsSaverSpec.scala" class="shortcut">GreetingsSaverSpec</a>.
-        Here we are using a mock <code>Database</code>, using a great mocking framework Mockito. Instead of providing
-        a real database implementation, we only provide a mock instance, which records what calls where made to it.
-        We can then verify that the desired interactions happened.
+        <a href="#src/test/scala/activator/calculator/CalculateLuckyNumberTest.scala" class="shortcut">CalculateLuckyNumberTest</a>.
+        To be able to verify the behavior of the calculator, we need to substitute the random modifier which something
+        that isn't random, e.g. returns a constant number.
     </p>
 
-    <h3>Integration testing</h3>
+    <p>
+        Nothing easier! We just override the value from the module, and it will be used when wiring an instance of
+        <code>CalculateLuckyNumber</code>!
+    </p>
 
     <p>
-        Using the trait-as-modules approach, it is also possible to integration-test whole packages, by instantiating the
-        module trait. Alternative implementations can be then provided by overriding the appropriate <code>val</code>s.
+        What we have created is in fact an integration test of the whole module. We could have also created a new
+        <code>CalculateLuckyNumber</code> instance directly and pass in either real or mock dependencies.
     </p>
 </div>
 <div>
     <h2>The End</h2>
 
     <p>
-        And that's it! We now have a simple Play application, which uses <strong>Dependency Injection</strong> for wiring the
-        services and controllers.
+        And that's it! We now have a simple Akka application, which uses <strong>Dependency Injection</strong> for
+        wiring the services and actors.
     </p>
 
     <p>
@@ -260,11 +295,9 @@
 
     <ul>
         <li><a href="http://di-in-scala.github.io" target="_blank">Guide to Dependency Injection in Scala</a></li>
-        <li><a href="http://www.playframework.com/documentation" target="_blank">Play Documentation</a></li>
-        <li><a href="http://stackoverflow.com/questions/130794/what-is-dependency-injection" target="_blank">SO: What is dependency injection?</a></li>
         <li><a href="https://github.com/adamw/macwire" target="_blank">The MacWire project on GitHub</a></li>
         <li><a href="http://www.warski.org/blog/2010/12/di-in-scala-cake-pattern/" target="_blank">Cake pattern</a></li>
-        <li><a href="https://code.google.com/p/mockito/" target="_blank">Mockito - Simple Mocking Framework</a></li>
+        <li><a href="http://akka.io" target="_blank">Akka</a></li>
     </ul>
 </div>
 </body>
