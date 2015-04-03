@@ -33,15 +33,15 @@
     <h2>The calculator package</h2>
 
     <p>
-        The main class in the <a href="#src/main/scala/activator/calculator" class="shortcut">calculator</a> package is the
-        <a href="#src/main/scala/activator/calculator/CalculateLuckyNumber.scala" class="shortcut">CalculateLuckyNumber</a>
+        The main class in the <a href="#code/src/main/scala/activator/calculator" class="shortcut">calculator</a> package is the
+        <a href="#code/src/main/scala/activator/calculator/CalculateLuckyNumber.scala" class="shortcut">CalculateLuckyNumber</a>
         class. It implements the main logic of actually computing the lucky number.
     </p>
 
     <p>
         Note that the <code>CalculateLuckyNumber</code> has two dependencies:
-        <a href="#src/main/scala/activator/calculator/InterpretFavoriteColor.scala" class="shortcut">InterpretFavoriteColor</a>
-        and <a href="#src/main/scala/activator/calculator/RandomModifier.scala" class="shortcut">RandomModifier</a>
+        <a href="#code/src/main/scala/activator/calculator/InterpretFavoriteColor.scala" class="shortcut">InterpretFavoriteColor</a>
+        and <a href="#code/src/main/scala/activator/calculator/RandomModifier.scala" class="shortcut">RandomModifier</a>
         (as we all know, all lucky number computations are to some degree random). All of the classes are quite simple,
         and in the end we simply add up all the numbers we get.
     </p>
@@ -72,8 +72,8 @@
     <h2>The calculator module</h2>
 
     <p>
-        The <a href="#src/main/scala/activator/calculator" class="shortcut">calculator</a> package also contains a
-        <a href="#src/main/scala/activator/calculator/CalculatorModule.scala" class="shortcut">CalculatorModule</a> trait.
+        The <a href="#code/src/main/scala/activator/calculator" class="shortcut">calculator</a> package also contains a
+        <a href="#code/src/main/scala/activator/calculator/CalculatorModule.scala" class="shortcut">CalculatorModule</a> trait.
         In the trait we define how to create instances of the objects from this package.
     </p>
 
@@ -139,23 +139,23 @@
     <h2>The actors package</h2>
 
     <p>
-        The <a href="#src/main/scala/activator/actors" class="shortcut">actors</a> package contains three actors
+        The <a href="#code/src/main/scala/activator/actors" class="shortcut">actors</a> package contains three actors
         which are responsible for accepting user requests, calculating the lucky number and emailing it back to the
         user (well, email support will be available in 2.0, here we are just printing to the console).
     </p>
 
     <p>
-        <a href="#src/main/scala/activator/actors/CalculateRequest.scala" class="shortcut">CalculateRequest</a> is
+        <a href="#code/src/main/scala/activator/actors/CalculateRequest.scala" class="shortcut">CalculateRequest</a> is
         a simple data container which represents a user request. It is used by the
-        <a href="#src/main/scala/activator/actors/CalculateActor.scala" class="shortcut">CalculateActor</a> to
+        <a href="#code/src/main/scala/activator/actors/CalculateActor.scala" class="shortcut">CalculateActor</a> to
         compute the lucky number and send it back to the sender. Note that the actor has a dependency - the service
         we defined earlier in the <code>calculator</code> package.
     </p>
 
     <p>
-        The <a href="#src/main/scala/activator/actors/EmailActor.scala" class="shortcut">EmailActor</a> just prints
+        The <a href="#code/src/main/scala/activator/actors/EmailActor.scala" class="shortcut">EmailActor</a> just prints
         outs any strings it get to the console. A much more interesting actor is the main one,
-        <a href="#src/main/scala/activator/actors/EmailLuckyNumbersActor.scala" class="shortcut">EmailLuckyNumbersActor</a>.
+        <a href="#code/src/main/scala/activator/actors/EmailLuckyNumbersActor.scala" class="shortcut">EmailLuckyNumbersActor</a>.
         That actor accepts requests, sends them to be calculated, and upon receiving a reply, emails the result.
     </p>
 
@@ -171,7 +171,7 @@
 
     <p>
         If you take a closer look at
-        <a href="#src/main/scala/activator/actors/EmailLuckyNumbersActor.scala" class="shortcut">EmailLuckyNumbersActor</a>,
+        <a href="#code/src/main/scala/activator/actors/EmailLuckyNumbersActor.scala" class="shortcut">EmailLuckyNumbersActor</a>,
         you'll notice that the dependencies have "tags", <code>ActorRef @@ Calculate</code> and
         <code>ActorRef @@ Email</code>. The <code>@@ T</code> part comes from MacWire, and is entirerly optional, but it
         helps to differentiate which actor reference is which and gives some additional compile-time type checks; we
@@ -196,7 +196,7 @@
 
     <p>
         Just as with the <code>calculator</code> module, there's also a trait-module for <acode>actors</acode>, the
-        <a href="#src/main/scala/activator/actors/ActorsModule.scala" class="shortcut">ActorsModule</a>.
+        <a href="#code/src/main/scala/activator/actors/ActorsModule.scala" class="shortcut">ActorsModule</a>.
     </p>
 
     <p>
@@ -223,7 +223,7 @@
     <h2>Main class</h2>
 
     <p>
-        The <a href="#src/main/scala/activator/LuckyNumberDemo.scala" class="shortcut">LuckyNumberDemo</a> main class
+        The <a href="#code/src/main/scala/activator/LuckyNumberDemo.scala" class="shortcut">LuckyNumberDemo</a> main class
         wraps all that we have done so far together.
     </p>
 
@@ -261,7 +261,7 @@
 
     <p>
         As an example, take a look at
-        <a href="#src/test/scala/activator/calculator/CalculateLuckyNumberTest.scala" class="shortcut">CalculateLuckyNumberTest</a>.
+        <a href="#code/src/test/scala/activator/calculator/CalculateLuckyNumberTest.scala" class="shortcut">CalculateLuckyNumberTest</a>.
         To be able to verify the behavior of the calculator, we need to substitute the random modifier which something
         that isn't random, e.g. returns a constant number.
     </p>
