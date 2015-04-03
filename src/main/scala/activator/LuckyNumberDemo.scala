@@ -13,10 +13,8 @@ object LuckyNumberDemo extends App with CalculatorModule with ActorsModule {
   lazy val ca = createCalculateActor()
   lazy val emailLuckyNumbersActor = createEmailLuckyNumbersActor(ca, ea)
 
-  println("Your age:")
-  val age = StdIn.readInt()
-  println("Favorite color:")
-  val color = StdIn.readLine()
+  val age = 42
+  val color = "red"
 
   emailLuckyNumbersActor ! CalculateRequest(age, color)
 
