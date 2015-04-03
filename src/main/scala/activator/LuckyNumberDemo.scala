@@ -20,6 +20,6 @@ object LuckyNumberDemo extends App with CalculatorModule with ActorsModule {
 
   // Should be more than enough for the actors to communicate
   Thread.sleep(1000L)
-  println("Check your email!")
+  println("All done, bye!")
   actorSystem.shutdown()
 }

@@ -6,10 +6,16 @@ import com.softwaremill.macwire._
 
 trait ActorsModule {
 
-  def createEmailActor() = actorSystem.actorOf(Props(wire[EmailActor])).taggedWith[Email]
-  def createCalculateActor() = actorSystem.actorOf(Props(wire[CalculateActor])).taggedWith[Calculate]
+  def createEmailActor() = actorSystem
+    .actorOf(Props(wire[EmailActor]))
+    .taggedWith[Email]
+  def createCalculateActor() = actorSystem
+    .actorOf(Props(wire[CalculateActor]))
+    .taggedWith[Calculate]
 
-  def createEmailLuckyNumbersActor(ca: ActorRef @@ Calculate, ea: ActorRef @@ Email) =
+  def createEmailLuckyNumbersActor(
+    ca: ActorRef @@ Calculate,
+    ea: ActorRef @@ Email) =
     actorSystem.actorOf(Props(wire[EmailLuckyNumbersActor]))
 
   def calculateLuckyNumber: CalculateLuckyNumber

@@ -4,7 +4,7 @@
 </head>
 <body>
 <div>
-    <p>You've just created the Macwire + Akka example application! Let's explore what's inside.</p>
+    <p>You've just created the MacWire + Akka example application! Let's explore what's inside.</p>
 
     <h2>Application overview</h2>
 
@@ -27,6 +27,10 @@
     <p>
         To see how the application works, just <a href="#run" class="shortcut">Run</a> it! There's no fancy UI, unless
         you consider the console to be fancy :).
+    </p>
+
+    <p>
+        Let's start exploring the <a href="#code">code</a> (open the sidebar to read the tutorial along with the code)!
     </p>
 </div>
 <div>
@@ -64,7 +68,8 @@
         <a href="https://code.google.com/p/google-guice/">Guice</a> or <a href="http://spring.io/">Spring</a>.
         However, a framework is not required, and as this tutorial demonstrates, Scala language features can be used
         instead. Also, the mentioned frameworks most often rely on run-time reflection and hence provide less type
-        safety. That said, they offer some advanced features which are not possible to achieve only with Scala/MacWire.
+        safety. That said, they offer some advanced features which are not possible to achieve only with Scala/
+        <a href="https://github.com/adamw/macwire">MacWire</a>.
         For a more detailed comparison, please refer to the materials mentioned at the end of the tutorial.
     </p>
 </div>
@@ -78,7 +83,7 @@
     </p>
 
     <p>
-        In many cases we can just call <code>new</code> with the right instances to create the object graph. Note that
+        In many cases we can just call <code>new</code> with the right parameters to create the object graph. Note that
         even when calling <code>new</code> directly, we are doing Dependency Injection! The main point is that creating
         the objects (object graph) is done separately from defining the classes. Here however, we are using MacWire
         to remove a bit of the boilerplate that is associated with creating the instances.
@@ -97,7 +102,8 @@
         parameters values found in the current scope. For example,
         <pre><code>wire[CalculateLuckyNumber]</code></pre>
         will expand to
-        <pre><code>new CalculateLuckyNumber(randomModifier, interpretFavoriteColor)</code></pre>
+        <pre><code>new CalculateLuckyNumber(randomModifier,
+            interpretFavoriteColor)</code></pre>
         Note that this is all done at compile-time - there's no run-time component here! At run-time, all the JVM
         will see is <code>new</code> invocation. And we get compile-time checking that all dependencies of a class
         are satisfied!
@@ -201,9 +207,9 @@
 
     <p>
         To create actors, first of all we need to have access to a <code>ActorSystem</code>. The module has an abstract
-        value of that type, which expresses a dependency of the module as a whole. It also has another dependency,
-        on a <code>CalculateLuckyNumber</code>. Any users of that module will have to provide an implementation of
-        these two values, and this will be enforced by the compiler.
+        value of that type, which expresses a dependency of the module (which is a "level higher" than a dependency of
+        a single class). It also has another dependency, on a <code>CalculateLuckyNumber</code>. Any usages of that
+        module will have to provide an implementation of these two values, and this will be enforced by the compiler.
     </p>
 
     <p>
@@ -215,7 +221,7 @@
 
     <p>
         Note that we are tagging the email/calculate actors appropriately, and that creating the <code>EmailLuckyNumbersActor</code>
-        requires references to other actors being passed in. These actor references from method paramters will be
+        requires references to other actors being passed in. These actor references from method parameters will be
         used when creating a <code>EmailLuckyNumbersActor</code> instance.
     </p>
 </div>
@@ -229,9 +235,10 @@
 
     <p>
         First of all, we extend both modules we have defined: <code>CalculatorModule</code> and
-        <code>ActorsModule</code>. This brings into scope all of the values defined. Note that also the <code>EmailLuckyNumbersActor</code>
-        dependency from <code>ActorsModule</code> is automatically satisfied by the definition in <code>CalculatorModule</code>!
-        (And of course, all of that is checked during compilation, using standard Scala mechanisms!)
+        <code>ActorsModule</code>. This brings into scope all of the values and methods defined. Note that also
+        the <code>EmailLuckyNumbersActor</code> dependency from <code>ActorsModule</code> is automatically satisfied
+        by the definition in <code>CalculatorModule</code>
+        (and of course, all of that is checked during compilation, using standard Scala mechanisms)!
         The actor system dependency is not defined in any module hence we have to define it.
     </p>
 
@@ -242,7 +249,7 @@
     </p>
 
     <p>
-        Finally, we can ask the user for input and calculate the result using our actor infrastructure!
+        Finally, we calculate the result for some example data using our actor infrastructure!
     </p>
 
     <p>
